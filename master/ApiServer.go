@@ -1,6 +1,9 @@
 package master
 
 import (
+	"crontab/common"
+	"encoding/json"
+	"fmt"
 	"net"
 	"net/http"
 	"strconv"
@@ -23,8 +26,37 @@ var(
 )
 
 //保存任务
+/**
+POST
+job = {
+"name":"job1",
+"command":"ls -l /root",
+"cronExpr": "* * * * *"
+}
+ */
 func handleJobSave(rw http.ResponseWriter, req *http.Request){
+	var(
+		err error
+		job common.CronJob
+		postJob string
+	)
 	//任务保存在etcd中
+	//1.解析POST表单提交
+	if err = req.ParseForm(); err != nil {
+		goto ERR
+	}
+
+	//2.去表单中的job字段
+	postJob = req.PostForm.Get("job")
+	err = json.Unmarshal([]byte(postJob),&job)
+	if err != nil{
+		goto ERR
+	}
+	//反序列化job,将postJob序列化为字节数组，然后赋值给job
+
+
+ERR:
+	fmt.Println(err)
 
 }
 //初始化服务

@@ -9,6 +9,8 @@ type Config struct {
 	ApiPort int `json:"apiPort"`
 	ApiReadTimeout int `json:"apiReadTimeOut"`
 	ApiWriteTimeout int `json:"apiWriteTimeout"`
+	EtcdEndpoints []string `json:"etcdEndpoints"`
+	EtcdDialTimeout int `json:"etcdDialTimeout"`
 }
 var (
 	G_config *Config
