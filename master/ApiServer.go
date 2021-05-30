@@ -3,6 +3,7 @@ package master
 import (
 	"net"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -23,16 +24,17 @@ var(
 
 //保存任务
 func handleJobSave(rw http.ResponseWriter, req *http.Request){
+	//任务保存在etcd中
 
 }
 //初始化服务
-func initApiServer()(err error){
+func InitApiServer()(err error){
 	//配置路由
 	mux := http.NewServeMux()
 	mux.HandleFunc("/cron/job/save",handleJobSave)
 
 	//启动tcp监听地址和端口
-	 listener,err := net.Listen("tcp",":9999")
+	 listener,err := net.Listen("tcp",":"+strconv.Itoa(G_config.ApiPort))
 	 if err != nil{
 		return
 	}
@@ -40,8 +42,8 @@ func initApiServer()(err error){
 	//创建http服务
 	httpServer := &http.Server{
 		//定义http读写超时时间
-		ReadTimeout: 5 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		ReadTimeout: time.Duration(G_config.ApiReadTimeout)*time.Millisecond,
+		WriteTimeout: time.Duration(G_config.ApiWriteTimeout)*time.Millisecond,
 		Handler:mux,
 	}
 	G_apiServer = &ApiServer{httpServer:httpServer,}
