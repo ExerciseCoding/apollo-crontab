@@ -3,7 +3,6 @@ package master
 import (
 	"crontab/common"
 	"encoding/json"
-	"fmt"
 	"net"
 	"net/http"
 	"strconv"
@@ -34,12 +33,13 @@ job = {
 "cronExpr": "* * * * *"
 }
  */
-func handleJobSave(rw http.ResponseWriter, req *http.Request){
+func handleJobSave(resp http.ResponseWriter, req *http.Request){
 	var(
 		err error
 		job common.CronJob
 		postJob string
 		oldJob *common.CronJob
+		bytes []byte
 	)
 	//任务保存在etcd中
 	//1.解析POST表单提交
@@ -60,11 +60,16 @@ func handleJobSave(rw http.ResponseWriter, req *http.Request){
 	}
 
 	//5.返回正常应答({"error":0,"msg":"","data":{......}})
+	if bytes,err = common.BuildResponse(0,"success",oldJob); err != nil{
+		resp.Write(bytes)
+	}
 	return
 
 ERR:
 	//返回异常应答
-	fmt.Println(err)
+	if bytes,err = common.BuildResponse(-1,err.Error(),nil); err != nil{
+		resp.Write(bytes)
+	}
 
 }
 //初始化服务

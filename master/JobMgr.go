@@ -4,7 +4,6 @@ import (
 	"context"
 	"crontab/common"
 	"encoding/json"
-	"fmt"
 	"github.com/coreos/etcd/clientv3"
 	"time"
 )
@@ -51,7 +50,6 @@ func InitJobMgr()(err error){
 		kv:     kv,
 		lease:  lease,
 	}
-	fmt.Println(G_jobMgr)
 	return
 }
 
