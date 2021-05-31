@@ -39,6 +39,7 @@ func handleJobSave(rw http.ResponseWriter, req *http.Request){
 		err error
 		job common.CronJob
 		postJob string
+		oldJob *common.CronJob
 	)
 	//任务保存在etcd中
 	//1.解析POST表单提交
@@ -48,14 +49,21 @@ func handleJobSave(rw http.ResponseWriter, req *http.Request){
 
 	//2.去表单中的job字段
 	postJob = req.PostForm.Get("job")
+	//3.反序列化job,将postJob序列化为字节数组，然后赋值给job
 	err = json.Unmarshal([]byte(postJob),&job)
 	if err != nil{
 		goto ERR
 	}
-	//反序列化job,将postJob序列化为字节数组，然后赋值给job
+	//4.保存到etcd
+	if oldJob,err = G_jobMgr.SaveJob(&job); err != nil{
+		goto ERR
+	}
 
+	//5.返回正常应答({"error":0,"msg":"","data":{......}})
+	return
 
 ERR:
+	//返回异常应答
 	fmt.Println(err)
 
 }
