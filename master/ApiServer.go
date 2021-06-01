@@ -106,13 +106,35 @@ ERR:
 		resp.Write(bytes)
 	}
 }
+//查看所有任务
+func handleJobList(resp http.ResponseWriter,req *http.Request){
+	var(
+		err error
+		jobList []*common.CronJob
+		bytes []byte
+	)
 
+	//查询任务列表
+	if jobList, err = G_jobMgr.ListJob(); err != nil{
+		goto ERR
+	}
+	if bytes, err = common.BuildResponse(0,"success",jobList); err == nil{
+		resp.Write(bytes)
+	}
+	return
+ERR:
+	if bytes, err = common.BuildResponse(-1,err.Error(),nil); err == nil{
+		resp.Write(bytes)
+	}
+
+}
 //初始化服务
 func InitApiServer() (err error) {
 	//配置路由
 	mux := http.NewServeMux()
 	mux.HandleFunc("/cron/job/save", handleJobSave)
 	mux.HandleFunc("/cron/job/delete", handleJobDelete)
+	mux.HandleFunc("/cron/job/list",handleJobList)
 
 	//启动tcp监听地址和端口
 	listener, err := net.Listen("tcp", ":"+strconv.Itoa(G_config.ApiPort))

@@ -111,3 +111,27 @@ func (jobMgr *JobMgr) DeleteJob(name string) (oldJob *common.CronJob, err error)
 	}
 	return
 }
+
+func (JobMgr *JobMgr) ListJob()(jobList []*common.CronJob,err error){
+	var (
+		getResp *clientv3.GetResponse
+
+	)
+	//初始化数组空间
+	jobList = make([]*common.CronJob,0)
+	//从etcd中查询job列表
+	if getResp,err = JobMgr.kv.Get(context.TODO(),common.JOB_SAVE_DIR,clientv3.WithPrefix()); err != nil{
+		return
+	}
+	for _,job := range getResp.Kvs{
+		cronJob := common.CronJob{}
+		if err = json.Unmarshal(job.Value,&cronJob); err != nil{
+			err = nil
+			continue
+		}
+
+		jobList = append(jobList,&cronJob)
+	}
+	return
+
+}
