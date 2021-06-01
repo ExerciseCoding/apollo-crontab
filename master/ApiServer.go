@@ -3,7 +3,6 @@ package master
 import (
 	"crontab/common"
 	"encoding/json"
-	"fmt"
 	"net"
 	"net/http"
 	"strconv"
@@ -68,7 +67,6 @@ func handleJobSave(resp http.ResponseWriter, req *http.Request) {
 	return
 
 ERR:
-	fmt.Println("err")
 	//返回异常应答
 	if bytes, err = common.BuildResponse(-1, err.Error(), nil); err == nil {
 		resp.Write(bytes)
@@ -76,12 +74,45 @@ ERR:
 	}
 
 }
+//删除任务
+//POST /job/delete name=job1
+func handleJobDelete(resp http.ResponseWriter,req *http.Request){
+	var(
+		err error
+		name string
+		oldJob *common.CronJob
+		bytes []byte
+	)
+
+	//POST表单数据格式(a=1& b= 2 & c=3
+	if err = req.ParseForm(); err != nil{
+		goto ERR
+	}
+	//删除的任务名
+	name = req.PostForm.Get("name")
+
+	//删除任务
+	if oldJob,err = G_jobMgr.DeleteJob(name); err != nil{
+		goto  ERR
+	}
+
+	if bytes,err = common.BuildResponse(0,"success",oldJob); err == nil{
+		resp.Write(bytes)
+	}
+	return
+
+ERR:
+	if bytes,err = common.BuildResponse(-1,err.Error(),nil); err == nil{
+		resp.Write(bytes)
+	}
+}
 
 //初始化服务
 func InitApiServer() (err error) {
 	//配置路由
 	mux := http.NewServeMux()
 	mux.HandleFunc("/cron/job/save", handleJobSave)
+	mux.HandleFunc("/cron/job/delete", handleJobDelete)
 
 	//启动tcp监听地址和端口
 	listener, err := net.Listen("tcp", ":"+strconv.Itoa(G_config.ApiPort))
