@@ -13,7 +13,7 @@ type CronJob struct {
 type Response struct {
 	Errno int `json:"errno"`
 	Msg string `json:"msg"`
-	data interface{} `json:"data"`
+	Data interface{} `json:"data"`
 }
 
 //应答方法
@@ -24,7 +24,7 @@ func BuildResponse(errno int,msg string,data interface{})(resp []byte,err error)
 	)
 	response.Errno = errno
 	response.Msg = msg
-	response.data = data
+	response.Data = data
 
 	//序列化
 	resp,err = json.Marshal(response)

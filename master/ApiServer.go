@@ -3,6 +3,7 @@ package master
 import (
 	"crontab/common"
 	"encoding/json"
+	"fmt"
 	"net"
 	"net/http"
 	"strconv"
@@ -11,15 +12,15 @@ import (
 
 /**
 定义任务的HTTP接口
- */
+*/
 type ApiServer struct {
 	httpServer *http.Server
 }
 
 /**
 定义单列的全局apiserver
- */
-var(
+*/
+var (
 	//单例对象
 	G_apiServer *ApiServer
 )
@@ -32,14 +33,14 @@ job = {
 "command":"ls -l /root",
 "cronExpr": "* * * * *"
 }
- */
-func handleJobSave(resp http.ResponseWriter, req *http.Request){
-	var(
-		err error
-		job common.CronJob
+*/
+func handleJobSave(resp http.ResponseWriter, req *http.Request) {
+	var (
+		err     error
+		job     common.CronJob
 		postJob string
-		oldJob *common.CronJob
-		bytes []byte
+		oldJob  *common.CronJob
+		bytes   []byte
 	)
 	//任务保存在etcd中
 	//1.解析POST表单提交
@@ -50,48 +51,52 @@ func handleJobSave(resp http.ResponseWriter, req *http.Request){
 	//2.去表单中的job字段
 	postJob = req.PostForm.Get("job")
 	//3.反序列化job,将postJob序列化为字节数组，然后赋值给job
-	err = json.Unmarshal([]byte(postJob),&job)
-	if err != nil{
+	err = json.Unmarshal([]byte(postJob), &job)
+	if err != nil {
 		goto ERR
 	}
 	//4.保存到etcd
-	if oldJob,err = G_jobMgr.SaveJob(&job); err != nil{
+	if oldJob, err = G_jobMgr.SaveJob(&job); err != nil {
 		goto ERR
 	}
 
 	//5.返回正常应答({"error":0,"msg":"","data":{......}})
-	if bytes,err = common.BuildResponse(0,"success",oldJob); err != nil{
+	if bytes, err = common.BuildResponse(0, "success", oldJob); err == nil {
 		resp.Write(bytes)
+
 	}
 	return
 
 ERR:
+	fmt.Println("err")
 	//返回异常应答
-	if bytes,err = common.BuildResponse(-1,err.Error(),nil); err != nil{
+	if bytes, err = common.BuildResponse(-1, err.Error(), nil); err == nil {
 		resp.Write(bytes)
+
 	}
 
 }
+
 //初始化服务
-func InitApiServer()(err error){
+func InitApiServer() (err error) {
 	//配置路由
 	mux := http.NewServeMux()
-	mux.HandleFunc("/cron/job/save",handleJobSave)
+	mux.HandleFunc("/cron/job/save", handleJobSave)
 
 	//启动tcp监听地址和端口
-	 listener,err := net.Listen("tcp",":"+strconv.Itoa(G_config.ApiPort))
-	 if err != nil{
+	listener, err := net.Listen("tcp", ":"+strconv.Itoa(G_config.ApiPort))
+	if err != nil {
 		return
 	}
 
 	//创建http服务
 	httpServer := &http.Server{
 		//定义http读写超时时间
-		ReadTimeout: time.Duration(G_config.ApiReadTimeout)*time.Millisecond,
-		WriteTimeout: time.Duration(G_config.ApiWriteTimeout)*time.Millisecond,
-		Handler:mux,
+		ReadTimeout:  time.Duration(G_config.ApiReadTimeout) * time.Millisecond,
+		WriteTimeout: time.Duration(G_config.ApiWriteTimeout) * time.Millisecond,
+		Handler:      mux,
 	}
-	G_apiServer = &ApiServer{httpServer:httpServer,}
+	G_apiServer = &ApiServer{httpServer: httpServer,}
 
 	//让服务启动在协程中
 	go httpServer.Serve(listener)
