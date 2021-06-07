@@ -19,9 +19,9 @@ func initEnv(){
 
 //解析命令行参数
 func initArgs(){
-	//master -config ./master.json
-	//master -h
-	flag.StringVar(&confFile,"-config","./master.json","指定master.json")
+	//worker -config ./worker.json
+	//worker -h
+	flag.StringVar(&confFile,"config","./worker.json","指定worker.json")
 	flag.Parse()
 }
 func main(){
@@ -32,7 +32,6 @@ func main(){
 	initArgs()
 	//初始化线程
 	initEnv()
-
 	//加载配置
 	if err = worker.InitConfig(confFile); err != nil{
 		goto ERR

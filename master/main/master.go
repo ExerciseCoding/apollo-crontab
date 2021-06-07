@@ -21,7 +21,7 @@ func initEnv(){
 func initArgs(){
 	//master -config ./master.json
 	//master -h
-	flag.StringVar(&confFile,"-config","./master.json","指定master.json")
+	flag.StringVar(&confFile,"config","./master.json","指定master.json")
 	flag.Parse()
 }
 func main(){
@@ -29,7 +29,6 @@ func main(){
 	initArgs()
 	//初始化线程
 	initEnv()
-
 	//加载配置
 	//文件名从命令行参数传入
 	err := master.InitConfig(confFile);
