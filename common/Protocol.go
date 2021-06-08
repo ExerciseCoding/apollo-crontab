@@ -34,6 +34,22 @@ type JobSchedulerPlan struct {
 	NextTime time.Time
 }
 
+//任务执行状态
+type JobExecuteInfo struct {
+	Job *CronJob  //任务信息
+	PlanTime time.Time //理论上的调度时间
+	RealTime time.Time //实际的调度时间
+}
+
+//任务执行结果
+type JobExecuteResult struct {
+	ExecuteInfo *JobExecuteInfo //执行状态
+	Output []byte // 脚本输出
+	Err error //脚本错误原因
+	StartTime time.Time //启动时间
+	EndTime time.Time //结束时间
+
+}
 //应答方法
 func BuildResponse(errno int,msg string,data interface{})(resp []byte,err error){
 	//1.定义一个Response
@@ -90,3 +106,12 @@ func BuildJobSchedulerPlan(job *CronJob)(jobSchedulerPlan *JobSchedulerPlan,err 
 	return
 }
 
+//构造执行信息状态
+func BuildJobExcuteInfo(jobSchedulePlan *JobSchedulerPlan)(jobExecuteInfo *JobExecuteInfo){
+	jobExecuteInfo = &JobExecuteInfo{
+		Job:      jobSchedulePlan.Job,
+		PlanTime: jobSchedulePlan.NextTime, //计划调度时间
+		RealTime: time.Now(), //真正任务执行时间
+	}
+	return
+}
