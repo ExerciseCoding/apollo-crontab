@@ -17,21 +17,26 @@ var (
 
 //执行一个任务
 func (executor *Executor) ExecuteJob(info *common.JobExecuteInfo){
-	var(
-		cmd *exec.Cmd
-		output []byte
-		err error
-		result *common.JobExecuteResult
-	)
-	//任务结果
-	result = &common.JobExecuteResult{
-		ExecuteInfo: info,
-		Output:      make([]byte,0),
-	}
-
-	//任务开始时间
-	result.StartTime = time.Now()
 	go func(){
+		var(
+			cmd *exec.Cmd
+			output []byte
+			err error
+			result *common.JobExecuteResult
+			jobLock *JobLock
+		)
+		//任务结果
+		result = &common.JobExecuteResult{
+			ExecuteInfo: info,
+			Output:      make([]byte,0),
+		}
+		//初始化分布式锁
+		jobLock = G_jobMgr.CreateJobLock(info.Job.Name)
+
+
+		//任务开始时间
+		result.StartTime = time.Now()
+
 		//执行crontab的shell命令
 		cmd = exec.CommandContext(context.TODO(),"/bin/bash","-c",info.Job.Command)
 		//执行并捕获输出
