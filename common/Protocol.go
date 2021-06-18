@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 	"time"
@@ -39,6 +40,8 @@ type JobExecuteInfo struct {
 	Job *CronJob  //任务信息
 	PlanTime time.Time //理论上的调度时间
 	RealTime time.Time //实际的调度时间
+	CancelCtx context.Context //任务command的context
+	CancelFunc context.CancelFunc //用于取消command执行的cancel函数
 }
 
 //任务执行结果
@@ -80,7 +83,10 @@ func ExtractJobName(jobKey string)(string){
 	return strings.TrimPrefix(jobKey,JOB_SAVE_DIR)
 }
 
-
+//例子: 从/cron/killer/job10提取job10
+func ExtractKillerJobName(killerKey string)(string){
+	return strings.TrimPrefix(killerKey,JOB_KILLER_DIR)
+}
 //任务变化事件 1.更新任务 2.删除任务
 func BuildJobEvent(eventType int,job *CronJob)(jobEvent *JobEvent){
 	return &JobEvent{
@@ -113,5 +119,6 @@ func BuildJobExcuteInfo(jobSchedulePlan *JobSchedulerPlan)(jobExecuteInfo *JobEx
 		PlanTime: jobSchedulePlan.NextTime, //计划调度时间
 		RealTime: time.Now(), //真正任务执行时间
 	}
+	jobExecuteInfo.CancelCtx,jobExecuteInfo.CancelFunc = context.WithCancel(context.TODO())
 	return
 }
