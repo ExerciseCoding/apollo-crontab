@@ -11,6 +11,8 @@ type Config struct {
 	MongodbUri string `json:"mongodbUri"`
 	MongodbConnectTimeout int `json:"mongodbConnectTimeout"`
 	LogSinkChanLen int `json:"logSinkChanLen"`
+	JobLogBatchSize int `json:"jobLogBatchSize"`
+	JobLogCommitTimeout int `json:"jobLogCommitTimeout"`
 }
 var (
 	G_config *Config

@@ -15,7 +15,15 @@ type CronJob struct {
 	Command string `json:"command"` //shell命令
 	CronExpr string `json:"cronExpr"` //cron表达式
 }
+//任务日志过滤条件
+type JobLogFilter struct{
+	JobName string `bson:"jobName"`
+}
 
+//任务日志排序规则
+type SortLogByStartTime struct {
+	SortOrder int `bson:"startTime"` //按{startTime: -1}
+}
 //HTTP接口应答
 type Response struct {
 	Errno int `json:"errno"`
@@ -64,6 +72,11 @@ type JobLog struct {
 	ScheduleTime int64 `bson:"scheduleTime"` //实际调度时间
 	StartTime int64 `bson:"startTime"` //任务执行开始时间
 	EndTime int64 `bson:"endTime"` //任务执行结束时间
+}
+
+//日志批次
+type LogBatch struct {
+	Logs []interface{} //多条日志
 }
 //应答方法
 func BuildResponse(errno int,msg string,data interface{})(resp []byte,err error){

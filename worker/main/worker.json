@@ -12,5 +12,11 @@
   "mongodbConnectTimeout": 5000,
 
   "logsink管道长度": "mongodb日志处理管道长度",
-  "logSinkChanLen": 1000
+  "logSinkChanLen": 1000,
+
+  "日志批次大小": "为了减少mongodb网络往返，打包成一批写入",
+  "jobLogBatchSize": 100,
+
+  "日志自动提交超时": "在批次未达到阈值之前，超时会自动提交batch",
+  "jobLogCommitTimeout": 1000
 }

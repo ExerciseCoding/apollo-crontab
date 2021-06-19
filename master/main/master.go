@@ -30,13 +30,18 @@ func main(){
 	//初始化线程
 	initEnv()
 	//加载配置
+
 	//文件名从命令行参数传入
 	err := master.InitConfig(confFile);
 	if err != nil{
 		goto ERR
 	}
+	err = master.InitLogMgr();
+	if err != nil{
+		goto ERR
+	}
 	//启动etcd
-	if err := master.InitJobMgr(); err != nil{
+	if err = master.InitJobMgr(); err != nil{
 		goto ERR
 	}
 	//启动Api http服务
