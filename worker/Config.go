@@ -8,6 +8,9 @@ import (
 type Config struct {
 	EtcdEndpoints []string `json:"etcdEndpoints"`
 	EtcdDialTimeout int `json:"etcdDialTimeout"`
+	MongodbUri string `json:"mongodbUri"`
+	MongodbConnectTimeout int `json:"mongodbConnectTimeout"`
+	LogSinkChanLen int `json:"logSinkChanLen"`
 }
 var (
 	G_config *Config
