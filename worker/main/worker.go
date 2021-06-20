@@ -36,6 +36,10 @@ func main(){
 	if err = worker.InitConfig(confFile); err != nil{
 		goto ERR
 	}
+
+	if err = worker.InitRegister(); err != nil{
+		goto ERR
+	}
 	//启动日志协程
 	if err = worker.InitLogSink(); err != nil{
 		goto ERR

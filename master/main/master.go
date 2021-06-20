@@ -36,6 +36,12 @@ func main(){
 	if err != nil{
 		goto ERR
 	}
+
+	//初始化服务发现模块
+	err = master.InitWorkerMgr()
+	if err != nil{
+		goto ERR
+	}
 	err = master.InitLogMgr();
 	if err != nil{
 		goto ERR

@@ -199,6 +199,28 @@ ERR:
 	}
 
 }
+
+//获取监控worker节点列表
+func handleWorkerList(resp http.ResponseWriter, req *http.Request){
+	var(
+		workerArr []string
+		bytes []byte
+		err error
+	)
+	if workerArr, err = G_workerMgr.ListWorkers(); err != nil{
+		goto ERR
+	}
+
+	if bytes, err = common.BuildResponse(0,"success",workerArr); err == nil{
+		resp.Write(bytes)
+	}
+	return
+ERR:
+	if bytes, err = common.BuildResponse(-1,err.Error(),nil); err == nil{
+		resp.Write(bytes)
+	}
+
+}
 //初始化服务
 func InitApiServer() (err error) {
 	var(
@@ -212,6 +234,7 @@ func InitApiServer() (err error) {
 	mux.HandleFunc("/cron/job/list",handleJobList)
 	mux.HandleFunc("/cron/job/kill",handleJobKill)
 	mux.HandleFunc("/job/log",handleJobLog)
+	mux.HandleFunc("/worker/list",handleWorkerList)
 	// 首页请求路由: /index.html
 	//静态文件目录
 	staticDir = http.Dir(G_config.WebRoot)

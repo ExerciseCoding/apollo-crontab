@@ -17,4 +17,7 @@ const (
 
 	//强杀任务事件
 	JOB_EVENT_KILL = 3
+
+	//服务注册目录
+	JOB_WORKER_DIR = "/cron/workers/"
 )
