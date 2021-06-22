@@ -22,6 +22,7 @@
         <div class="row">
             <div class="col-md-12">
                 <button type="button" class="btn btn-primary" id="new-job">新建任务</button>
+                <button type="button" class="btn btn-success" id="list-worker">监控节点</button>
             </div>
         </div>
 
@@ -113,6 +114,33 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
+    <!--  健康节点模态框 -->
+    <div id="worker-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">健康节点</h4>
+                </div>
+                <div class="modal-body">
+                    <table id="worker-list" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>节点IP</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
 <script>
     //页面加载完成后，回调函数
     $(document).ready(function () {
@@ -186,6 +214,34 @@
                     window.location.reload()
                 }
             })
+        })
+        // 健康节点按钮
+        $('#list-worker').on('click', function() {
+            // 清空现有table
+            $('#worker-list tbody').empty()
+
+            // 拉取节点
+            $.ajax({
+                url: '/worker/list',
+                dataType: 'json',
+                success: function(resp) {
+                    if (resp.errno != 0) {
+                        return
+                    }
+
+                    var workerList = resp.data
+                    // 遍历每个IP, 添加到模态框的table中
+                    for (var i = 0; i < workerList.length; ++i) {
+                        var workerIP = workerList[i]
+                        var tr = $('<tr>')
+                        tr.append($('<td>').html(workerIP))
+                        $('#worker-list tbody').append(tr)
+                    }
+                }
+            })
+
+            // 弹出模态框
+            $('#worker-modal').modal('show')
         })
 
         // 查看任务日志

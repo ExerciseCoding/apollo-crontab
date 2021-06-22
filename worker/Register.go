@@ -3,9 +3,11 @@ package worker
 import (
 	"context"
 	"crontab/common"
-	"github.com/coreos/etcd/clientv3"
 	"net"
+	"os"
 	"time"
+
+	"github.com/coreos/etcd/clientv3"
 )
 
 //注册节点到etcd：/cron/workers/IP地址
@@ -16,7 +18,15 @@ type Register struct {
 
 	localIP string //本机IP
 }
-
+//获取本机hostname
+func getLocalHost()(hostname string, err error){
+	hostname, err = os.Hostname()
+	if err != nil{
+		err = common.ERR_NO_LOCAL_HOSTNAME
+		return
+	}
+	return
+}
 //获取本机网卡IP
 func getLocalIP()(ipv4 string, err error){
 	var(
