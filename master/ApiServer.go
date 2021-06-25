@@ -3,6 +3,7 @@ package master
 import (
 	"crontab/common"
 	"encoding/json"
+	"fmt"
 	"net"
 	"net/http"
 	"strconv"
@@ -221,6 +222,47 @@ ERR:
 	}
 
 }
+
+func handleLogin(resp http.ResponseWriter, req *http.Request){
+	var(
+		bytes []byte
+		err error
+	)
+	fmt.Println(req.URL)
+	if bytes, err = common.BuildResponse(0,"success",""); err == nil{
+		resp.Write(bytes)
+	}
+	return
+}
+
+func handleGetLoginInfo(resp http.ResponseWriter, req *http.Request){
+	var(
+		bytes []byte
+		err error
+	)
+	roles := []string{"admin"}
+	userInfo := make(map[string]interface{})
+	userInfo["id"] = "1"
+	userInfo["name"] = "amdin"
+	userInfo["roles"] = roles
+	userInfo["avatar"] = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
+	fmt.Println(req.URL)
+	if bytes, err = common.BuildResponse(0,"success",userInfo); err == nil{
+		resp.Write(bytes)
+	}
+	return
+}
+
+func handleLoginout(resp http.ResponseWriter, req *http.Request){
+	var(
+		bytes []byte
+		err error
+	)
+	if bytes, err = common.BuildResponse(0,"success",""); err == nil{
+		resp.Write(bytes)
+	}
+	return
+}
 //初始化服务
 func InitApiServer() (err error) {
 	var(
@@ -235,6 +277,9 @@ func InitApiServer() (err error) {
 	mux.HandleFunc("/cron/job/kill",handleJobKill)
 	mux.HandleFunc("/job/log",handleJobLog)
 	mux.HandleFunc("/worker/list",handleWorkerList)
+	mux.HandleFunc("/vue-element-admin/user/login",handleLogin)
+	mux.HandleFunc("/vue-element-admin/user/info",handleGetLoginInfo)
+	mux.HandleFunc("/vue-element-admin/user/logout",handleLoginout)
 	// 首页请求路由: /index.html
 	//静态文件目录
 	staticDir = http.Dir(G_config.WebRoot)
