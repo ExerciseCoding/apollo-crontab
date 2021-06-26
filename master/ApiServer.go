@@ -4,6 +4,7 @@ import (
 	"crontab/common"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"strconv"
@@ -38,20 +39,27 @@ func handleJobSave(resp http.ResponseWriter, req *http.Request) {
 	var (
 		err     error
 		job     common.CronJob
-		postJob string
+		//postJob string
 		oldJob  *common.CronJob
 		bytes   []byte
+		body     []byte
 	)
-	//任务保存在etcd中
-	//1.解析POST表单提交
-	if err = req.ParseForm(); err != nil {
+	if body,err  = ioutil.ReadAll(req.Body); err != nil{
 		goto ERR
 	}
 
+	fmt.Println(fmt.Sprintf("url"+"%s",req.URL))
+	//任务保存在etcd中
+	//1.解析POST表单提交
+	//if err = req.ParseForm();  err != nil {
+	//	goto ERR
+	//}
+
 	//2.去表单中的job字段
-	postJob = req.PostForm.Get("job")
+	//postJob = req.PostForm.Get("job")
 	//3.反序列化job,将postJob序列化为字节数组，然后赋值给job
-	err = json.Unmarshal([]byte(postJob), &job)
+	//err = json.Unmarshal([]byte(postJob), &job)
+	err = json.Unmarshal(body, &job)
 	if err != nil {
 		goto ERR
 	}
