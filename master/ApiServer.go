@@ -1,7 +1,6 @@
 package master
 
 import (
-	"crontab/common"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"apollo/common"
 )
 
 /**
@@ -350,9 +351,9 @@ func InitApiServer() (err error) {
 	mux.HandleFunc("/cron/job/update",handleJobUpdate)
 	mux.HandleFunc("/job/log",handleJobLog)
 	mux.HandleFunc("/worker/list",handleWorkerList)
-	mux.HandleFunc("/vue-element-admin/user/login",handleLogin)
-	mux.HandleFunc("/vue-element-admin/user/info",handleGetLoginInfo)
-	mux.HandleFunc("/vue-element-admin/user/logout",handleLoginout)
+	mux.HandleFunc("/cron/user/login",handleLogin)
+	mux.HandleFunc("/cron/user/info",handleGetLoginInfo)
+	mux.HandleFunc("/cron/user/logout",handleLoginout)
 	// 首页请求路由: /index.html
 	//静态文件目录
 	staticDir = http.Dir(G_config.WebRoot)

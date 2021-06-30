@@ -1,4 +1,4 @@
-module crontab
+module apollo
 
 go 1.15
 
