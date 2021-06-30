@@ -83,6 +83,43 @@ ERR:
 	}
 
 }
+func handleJobUpdate(resp http.ResponseWriter, req *http.Request) {
+	var (
+		err     error
+		job     common.CronJob
+		oldJob  *common.CronJob
+		bytes   []byte
+		body     []byte
+	)
+	if body,err  = ioutil.ReadAll(req.Body); err != nil{
+		goto ERR
+	}
+	fmt.Println(fmt.Sprintf("url"+"%s",req.URL))
+	err = json.Unmarshal(body, &job)
+	if err != nil {
+		goto ERR
+	}
+	//4.保存到etcd
+	if oldJob, err = G_jobMgr.SaveJob(&job); err != nil {
+		goto ERR
+	}
+
+	//5.返回正常应答({"error":0,"msg":"","data":{......}})
+	if bytes, err = common.BuildResponse(0, "success", oldJob); err == nil {
+		resp.Write(bytes)
+
+	}
+	return
+
+ERR:
+	//返回异常应答
+	if bytes, err = common.BuildResponse(-1, err.Error(), nil); err == nil {
+		resp.Write(bytes)
+
+	}
+
+}
+
 //删除任务
 //POST /job/delete name=job1
 func handleJobDelete(resp http.ResponseWriter,req *http.Request){
@@ -91,14 +128,26 @@ func handleJobDelete(resp http.ResponseWriter,req *http.Request){
 		name string
 		oldJob *common.CronJob
 		bytes []byte
+		body []byte
+	    postData map[string]string
+		//ok bool
 	)
-
-	//POST表单数据格式(a=1& b= 2 & c=3
-	if err = req.ParseForm(); err != nil{
+	if body,err  = ioutil.ReadAll(req.Body); err != nil{
 		goto ERR
 	}
+	//name = string(body)
+	fmt.Println(req.URL)
+
+	if err = json.Unmarshal(body, &postData); err != nil{
+		goto ERR
+	}
+	name = postData["name"]
+	//POST表单数据格式(a=1& b= 2 & c=3
+	//if err = req.ParseForm(); err != nil{
+	//	goto ERR
+	//}
 	//删除的任务名
-	name = req.PostForm.Get("name")
+	//name = req.PostForm.Get("name")
 
 	//删除任务
 	if oldJob,err = G_jobMgr.DeleteJob(name); err != nil{
@@ -144,13 +193,27 @@ func handleJobKill(resp http.ResponseWriter, req *http.Request){
 		err error
 		name string
 		bytes []byte
+		body []byte
+		postData map[string]string
 	)
-	//解析表单
-	if err = req.ParseForm(); err != nil{
+	if body,err  = ioutil.ReadAll(req.Body); err != nil{
 		goto ERR
 	}
+	//name = string(body)
+	fmt.Println(req.URL)
+
+	if err = json.Unmarshal(body, &postData); err != nil{
+		goto ERR
+	}
+	name = postData["name"]
+	fmt.Println(name)
+
+	//解析表单
+	//if err = req.ParseForm(); err != nil{
+	//	goto ERR
+	//}
 	//要杀死任务的任务名
-	name = req.PostForm.Get("name")
+	//name = req.PostForm.Get("name")
 
 	if err = G_jobMgr.KillJob(name); err != nil{
 		goto ERR
@@ -194,10 +257,11 @@ func handleJobLog(resp http.ResponseWriter, req *http.Request){
 	if limit, err = strconv.Atoi(limitParam); err != nil{
 		limit = 20
 	}
+	fmt.Println(name,skip,limit)
 	if logArr,err = G_logMgr.ListLog(name,skip,limit); err != nil{
 		goto  ERR
 	}
-
+	fmt.Println(logArr)
 	if bytes, err = common.BuildResponse(0,"success",logArr); err == nil{
 		resp.Write(bytes)
 	}
@@ -283,6 +347,7 @@ func InitApiServer() (err error) {
 	mux.HandleFunc("/cron/job/delete", handleJobDelete)
 	mux.HandleFunc("/cron/job/list",handleJobList)
 	mux.HandleFunc("/cron/job/kill",handleJobKill)
+	mux.HandleFunc("/cron/job/update",handleJobUpdate)
 	mux.HandleFunc("/job/log",handleJobLog)
 	mux.HandleFunc("/worker/list",handleWorkerList)
 	mux.HandleFunc("/vue-element-admin/user/login",handleLogin)
