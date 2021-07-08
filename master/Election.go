@@ -8,8 +8,8 @@ import (
 	"apollo/common"
 	"apollo/utils"
 
-	"github.com/coreos/etcd/clientv3/concurrency"
 	"github.com/coreos/etcd/clientv3"
+	"github.com/coreos/etcd/clientv3/concurrency"
 )
 
 var log = utils.Logger
