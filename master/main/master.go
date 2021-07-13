@@ -48,6 +48,7 @@ func main(){
 		goto ERR
 	}
 	//启动etcd
+
 	if err = master.InitJobMgr(); err != nil{
 		goto ERR
 	}

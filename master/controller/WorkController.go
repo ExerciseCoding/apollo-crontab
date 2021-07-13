@@ -1,9 +1,10 @@
 package controller
 
 import (
+	"net/http"
+
 	"apollo/common"
 	"apollo/master"
-	"net/http"
 )
 
 type WorkController struct {

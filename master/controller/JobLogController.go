@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"apollo/common"
-	"apollo/master"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"apollo/common"
+	"apollo/master"
 )
 
 type JobLogController struct {

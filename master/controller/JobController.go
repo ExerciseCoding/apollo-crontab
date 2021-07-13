@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"apollo/common"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"apollo/common"
 	"apollo/master"
 )
 
